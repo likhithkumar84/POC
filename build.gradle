@@ -1,0 +1,79 @@
+plugins {
+    id 'java'
+    id 'jacoco'
+    id 'org.springframework.boot' version '3.1.1'
+    id 'io.spring.dependency-management' version '1.1.0'
+    id 'io.freefair.lombok' version "8.1.0"
+}
+
+group = 'com.example.poc'
+version = '1.0.0'
+
+java {
+    sourceCompatibility = '17'
+}
+
+jacoco {
+    toolVersion = "0.8.8"
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-data-rest'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.flywaydb:flyway-core'
+    implementation 'org.springdoc:springdoc-openapi-ui:1.7.0'
+    implementation 'org.postgresql:postgresql'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+    testImplementation 'org.springframework.batch:spring-batch-test'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:postgresql'
+}
+
+ext {
+    set('artifact', file("build/artifact"))
+}
+
+test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+    minHeapSize = "256m"
+    maxHeapSize = "2048m"
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.outputLocation = layout.buildDirectory.dir('jacoco')
+    }
+}
+
+bootJar.doLast {
+    copy {
+        from(tasks.bootJar.outputs.files.singleFile)
+        into(artifact)
+        rename(tasks.bootJar.outputs.files.singleFile.name, "${project.name}.jar")
+    }
+}

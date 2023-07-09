@@ -1,0 +1,55 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: postgres
+
+  batch:
+    jdbc:
+      initialize-schema: never
+    job:
+      enabled: false
+  main:
+    allow-bean-definition-overriding: true
+  flyway:
+    locations: "classpath:db/migration,db.migration"
+    baseline-on-migrate: true
+    outOfOrder: true
+  jpa:
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        ddl-auto: none
+    show-sql: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-},%X{parentSpanId:-}]"
+
+server:
+  port: 8080
+
+scheduling:
+  job:
+    cron: "0 * * ? * *"
+
+management:
+  endpoint:
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
